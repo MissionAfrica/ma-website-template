@@ -1,0 +1,61 @@
+{% extends "_layout" %}
+
+{% set hash = craft.request.getSegment(3) %}
+
+{% if charge is not defined %}
+	{% set charge = craft.charge.charges.hash(hash).first() %}
+{% endif %}
+{% set title = "Give to Mission Africa" %}
+{% set description = "I donated {{ charge.formatPlanAmount() }} to Mission Africa" %}
+
+{% block content %}
+
+<div class="hero">
+	<div class="hero-inner"></div>
+</div>
+<div class="full-width--light-gray">
+	<section class="thanks-block">
+		<p class="thanks">Thanks. Your donation of {{ charge.formatPlanAmount() }} has been processed.
+		<svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52"><circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/><path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/></svg>
+		<small>You will receive an email receipt shortly.</small></p>
+		<img src="{{siteUrl}}assets/images/thank-you.jpg" alt="">
+		<span>Thank you for your support!</span>
+		<div class="addthis_sharing_toolbox"></div>
+	</section>
+</div>
+<section class="body-wrapper">
+	<h2>Other Ways to Give</h2>
+	<div class="cards">
+		{% for way in  craft.entries.section('otherWaysToGive') %}
+		    <div class="card no-photo">
+			    <div class="card-header">
+			      {{way.title}}
+			    </div>
+			    <div class="card-copy">
+			    {% set type = way.getType() %}
+			    {% switch type %}  
+			    	{% case "otherWaysDownload" %}
+			    		<p>{{way.body | trimit(150)}}</p>
+			    		</div>
+			    		{% for asset in way.downloadLink %}
+				      		<div class="card-link"><a href="{{ asset.url }}" class="read-more" target="_blank">Download &rsaquo;</a> 
+				      	{% endfor %}  
+			    	{% case "otherWaysLink" %}
+			    		<p>{{way.body | trimit(150)}}</p>
+			    		</div>
+			    	  	<div class="card-link"><a href="{{way.pageLink}}" class="read-more">Find out more &rsaquo;</a>				    				    
+			    	{% case "otherWaysPage" %}
+				    	<p>{{way.body | trimit(150)}}</p>
+				    	</div>
+				      	<div class="card-link"><a href="{{way.url}}" class="read-more">Find out more &rsaquo;</a>  
+				    {% default %}
+				    	<p>{{type}}</p>  
+			    {% endswitch %}
+			    
+			      
+			    </div>
+			  </div>
+		{% endfor %}
+	</div>
+</section>
+{% endblock %}

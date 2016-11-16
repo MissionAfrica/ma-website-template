@@ -1,0 +1,33 @@
+{#
+ # News entry template
+ # -------------------
+ #
+ # This template gets loaded whenever a News entry’s URL is
+ # requested. That’s because the News section’s Template setting is
+ # set to “news/_entry”, the path to this template.
+ #
+ # When this template is loaded, it will already have an ‘entry’
+ # variable, set to the requested News entry.
+ #
+ # See this page for more details on how Craft routes requests:
+ # http://buildwithcraft.com/docs/routing
+ #}
+
+{% extends "_layout" %}
+{% set title = entry.title %}
+{% set description = entry.subtitle %}
+{% block content %}
+	{% set image = entry.hero.first() %}
+	<div class="banner" {% if image %}style="background-image:url('{{ image.getUrl('hero') }}');"{% endif %}>
+		<div class="banner-inner">
+			<div class="banner-copy body-wrapper">
+				<h1>{{ entry.title }}</h1>
+				<p>{{entry.subtitle}}<br><br><small>Posted on {{ entry.postDate.format('F d, Y') }}</small></p>
+			</div>
+		</div>
+	</div>	
+	<article>
+		{{ entry.body }}
+		<div class="addthis_sharing_toolbox"></div>
+	</article>
+{% endblock %}

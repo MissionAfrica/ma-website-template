@@ -1,0 +1,273 @@
+{% extends "_layout" %}
+{% set title = category.title %}
+{% set description = category.subtitle %}
+{% if category.slug == 'apply' %}
+	{% set isApply = true %}
+{% endif %}
+{% set image = category.hero.first() %}	
+{% block content %}	
+	<div class="banner {% if isApply %}small{% endif %}" {% if image %}style="background-image:url('{{ image.getUrl('hero') }}');"{% endif %}>
+		<div class="banner-inner">
+			<div class="banner-copy body-wrapper">
+				<h1>{{ category.title }}</h1>
+				<p>{{ category.subtitle }}</p>
+			</div>
+		</div>
+	</div>
+	<article>
+	{% if not isApply %}
+		<div class="breadcrumb">
+	        <a href="{{siteUrl}}{{ category.group|kebab }}">{{ category.group }}</a>
+	        {% if category.parent|length %}<a href="{{ category.parent.url }}">{{ category.parent }}</a>{% endif %}
+			<a href="#" class="current">{{ category }}</a>
+		</div>
+	{% endif %}
+		{{ category.longArticleBody.getPage(1) }}
+
+        {% if category.longArticleBody.getTotalPages() > 1 %}
+            <div class="extra" style="display:none;">
+            	{{ category.longArticleBody.getPage(2) }}
+            </div>
+            <a href="javascript:void(0)" id="readMore">More information…</a>
+        {% endif %}
+		<div class="addthis_sharing_toolbox"></div>
+		{% if category.testimonial|length %}
+		    <div class="slide-container">
+		      <input type="radio" name="nav" id="first" checked/>
+		      <input type="radio" name="nav" id="second" />
+		      <input type="radio" name="nav" id="third" />
+		      
+		    <label for="first" class="first"></label>
+		    <label for="second"  class="second"></label>
+		    <label for="third" class="third"></label>
+		     {% for slide in category.testimonial.order('RAND()').limit(3).find() %}
+		      <div class="{% if loop.index==1%}one{% elseif loop.index==2 %}two{% else %}three{% endif %} slide">
+		        <blockquote>
+		          <span class="leftq quotes">&ldquo;</span> {{slide.quote}} <span class="rightq quotes">&bdquo; </span>
+		        </blockquote>
+		        {% set image = slide.speakerPhoto.first() %}
+		        <img src="{{image.getURL('thumb')}}" width="170" height="130" />
+		        <h2>{{slide.speaker}}</h2>
+		        <h6>{{slide.speakerInfo}}</h6>
+		      </div>
+		     {% endfor %}
+		    </div>
+		{% endif %}
+		{% for block in category.caseStudy %}
+			{% if block.type == "heading" %}
+
+		        <h2>{{ block.heading }}</h2>
+		    {% elseif block.type == "caseStudy" %}
+				<div class="side-image colour {{block.colour}}">
+				  {% set image = block.image.first() %}
+				  	<div class="images-wrapper" {% if image %}style="background-image:url('{{ image.getUrl('medium') }}');"{% endif %}></div>
+				    <div class="side-image-content">
+				      <h3>{{block.heading}}</h3>
+				      <p>{{block.quote}}</p>
+				  </div>
+				</div>
+		    {% endif %}
+		{% endfor %}
+        {% if (category.children) and not (category.slug == "teams")  %}
+			<div class="cards">
+			{% for child in category.children %}
+				  <div class="card"><a href="{{child.url}}">
+				    <div class="card-image">
+				      <img src="{{child.hero.first().getUrl('small')}}" alt="">
+				    </div>
+				    <div class="card-header">
+				      {{child.title}}
+				    </div>
+				    <div class="card-copy">
+				      <p>{{child.subtitle | trimit(150)}}</p>   
+				    </div>
+				    <div class="card-link"><a href="{{child.url}}" class="read-more">Read more &rsaquo;</a></div></a>
+				  </div>			
+			{% endfor %}
+			</div>
+        {% endif %}
+        
+	</article>
+	
+	{% if category.applyOnlineLink|length%}
+		<div class="body-wrapper" style="text-align:center"><a href="{{ category.applyOnlineLink }}" class="button">Apply Online</a></div>
+	{% endif %}
+	{% set opportunities = craft.entries.section('opportunities').relatedTo(category).order('RAND()').limit(3).find() %}
+	{% if opportunities %}
+		<div class="body-wrapper">
+			<header class="section-title">
+				<div class="section-heading">
+					<h1>Current {{category.title}} Opportunities</h1>
+				</div>
+				<div class="view-all">
+					<a href="{{ siteUrl }}opportunities/results?q={{ category.id }}">
+						View more
+						<span>&times;</span>
+					</a>
+				</div>		
+			</header>
+			<div class="cards">
+			{% for opportunity in opportunities %}
+				  <div class="card"><a href="{{opportunity.url}}">
+				    <div class="card-image">
+				      <img src="{{opportunity.hero.first().getUrl('small')}}" alt="">
+				    </div>
+				    <div class="card-header">
+				      {{opportunity.shortTitle}}
+				    </div>
+				    <div class="card-copy">
+				      <p>{{opportunity.subtitle | trimit(150)}}</p>
+				      
+				    </div>
+				    <div class="card-link"><a href="{{opportunity.url}}" class="read-more">Read more &rsaquo;</a></div></a>
+				  </div>
+				
+			{% endfor %}
+			</div>
+		</div>
+	{% endif %}
+	{% set missionaries = craft.entries.section('missionaries').relatedTo(category).find() %}
+	{% if missionaries %}
+		<div class="body-wrapper">
+			<h2>Related missionaries</h2>				
+			<div class="cards">
+			{% for missionary in missionaries %}
+				  <div class="card"><a href="{{missionary.url}}">
+				    <div class="card-image">
+				      <img src="{{missionary.hero.first().getUrl('small')}}" alt="">
+				    </div>
+				    <div class="card-header">
+				      {{missionary.title}}
+				    </div>
+				    <div class="card-copy">
+				      <p>{{missionary.subtitle | trimit(150)}}</p>
+				      
+				    </div>
+				    <div class="card-link"><a href="{{missionary.url}}" class="read-more">Read more &rsaquo;</a></div></a>
+				  </div>
+				
+			{% endfor %}
+			</div>
+		</div>
+	{% endif %}
+	{% set ministries = craft.entries.section('ministries').relatedTo(category).find() %}
+	{% if ministries %}
+		<div class="body-wrapper">
+			<h2>Related ministries</h2>
+			<div class="cards">
+			{% for ministry in ministries %}
+				  <div class="card"><a href="{{ministry.url}}">
+				    <div class="card-image">
+				      <img src="{{ministry.hero.first().getUrl('small')}}" alt="">
+				    </div>
+				    <div class="card-header">
+				      {{ministry.shortTitle}}
+				    </div>
+				    <div class="card-copy">
+				      <p>{{ministry.subtitle | trimit(150)}}</p>
+				      
+				    </div>
+				    <div class="card-link"><a href="{{ministry.url}}" class="read-more">Read more &rsaquo;</a></div></a>
+				  </div>
+				
+			{% endfor %}
+			</div>
+		</div>
+	{% endif %}
+	{% if category.showEmail  %}
+		<div class="body-wrapper">
+		<h2>Interested? Get in touch.</h2>
+			{% macro errorList(errors) %}
+			    {% if errors %}
+			        <ul class="errors">
+			            {% for error in errors %}
+			                <li>{{ error }}</li>
+			            {% endfor %}
+			        </ul>
+			    {% endif %}
+			{% endmacro %}
+
+			{% from _self import errorList %}
+			<div id="feedback" class="" style="display:none;">
+				Your message was sent successfully!
+			</div>
+			<div id="loading" class="loading" style="display:none">
+				<div></div>
+				<div></div>
+				<div></div>
+			</div>
+			<form id="my-form" method="post" action="" accept-charset="UTF-8">
+			    {{ getCsrfInput() }}
+			    <input type="hidden" name="action" value="contactForm/sendMessage">
+
+			    <h3><label for="fromName">Your Name</label></h3>
+			    <input id="fromName" type="text" name="fromName" value="{% if message is defined %}{{ message.fromName }}{% endif %}" required >
+			    {{ message is defined and message ? errorList(message.getErrors('fromName')) }}
+
+			    <h3><label for="fromEmail">Your Email</label></h3>
+			    <input id="fromEmail" type="text" name="fromEmail" value="{% if message is defined %}{{ message.fromEmail }}{% endif %}" required >
+			    {{ message is defined and message ? errorList(message.getErrors('fromEmail')) }}
+
+			    <input id="opportunity" type="hidden" name="message[Opportunity]" value="{{ category.title }}">
+			    <input id="cheeky" name="cheeky" type="text">
+			    <h3><label for="message">Message</label></h3>
+			    <textarea rows="10" cols="40" id="message" name="message[body]">{% if message is defined %}{{ message.message }}{% endif %}</textarea required >
+			    {{ message is defined and message ? errorList(message.getErrors('message')) }}
+
+			    <input type="submit" value="Send">
+			</form>
+		</div>
+	{% endif %}
+{% endblock %}
+{% block foot %}
+	{% if category.showEmail  %}
+	<script>
+		$( document ).ajaxStart(function() {
+		  $('#feedback').removeClass('flash-success');
+		  $('#feedback').removeClass('flash-error');
+		  $( "#loading" ).slideDown();
+		  $( "#my-form" ).slideUp();
+		});
+		$('#my-form').submit(function(ev) {
+		    // Prevent the form from actually submitting
+		    ev.preventDefault();
+
+		    // Get the post data
+		    var data = $(this).serialize();
+
+		    // Send it to the server
+		    $.post('/', data, function(response) {
+		        if (response.success) {
+		        	 $( "#loading" ).slideUp();
+		        	 $('#feedback').addClass('flash-success');
+      	             $('#feedback').slideDown();
+		        } else {
+		            // response.error will be an object containing any validation errors that occurred, indexed by field name
+		            // e.g. response.error.fromName => ['From Name is required']
+		            // Loop through the errors and append to relevant fields
+                    for ( var fieldId in response.error ) {
+
+                        // Create the <ul>
+                        var $errors = $( '<ul class="errors plain" />' );
+
+                        // Wrap the error messages in <li> tags
+                        var messages = $.map(response.error[fieldId], function(message){
+                            return '<li>' + message + '</li>';
+                        });
+
+                        // Append the error messages to the ul
+                        $errors.append( messages.join( '' ) );
+
+                        // Select the input element and append the .errors <ul> after it.
+                        $('#'+fieldId).after($errors);
+                        $('#'+fieldId).addClass('error')
+
+                    }
+		            $( "#loading" ).slideUp();
+		  			$( "#my-form" ).slideDown();
+		        }
+		    });
+		});
+	</script>
+	{% endif %}
+{% endblock %}

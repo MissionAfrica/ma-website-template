@@ -1,0 +1,40 @@
+{% extends "_layout" %}
+{% set title = entry.title %}
+{% set description = entry.subtitle %}
+{% set image = entry.hero.first() %}
+{% block content %}
+	
+	<div class="banner" {% if image %}style="background-image:url('{{ image.getUrl('hero') }}');"{% endif %}>
+		<div class="banner-inner">
+			<div class="banner-copy body-wrapper">
+				<h1>{{ entry.title }}</h1>
+				<p>{{ entry.subtitle }}</p>
+			</div>
+		</div>
+	</div>
+	<article>
+		{{ entry.body }}
+		<hr id="pm">
+		{% set month = now.month %}
+		<h2>Prayer Monthly {{now|date('F Y')}}</h2>
+		{% set prayerMonthly = craft.entries.section('prayerOfTheDay').limit(null) %}
+		{% if prayerMonthly %}		
+			<ul class="prayer-grid">
+				{% for prayer in prayerMonthly.order('title') %}
+					{% if prayer.date|date('F') == now|date('F') %}
+						<li class="prayer">
+						    <div class="prayer-content">
+						      <h3>{{ prayer.date|date("jS F") }}</h3>
+						      <p>{{ prayer.prayer }}</p>
+						    </div>
+						</li>
+					{% endif %}  
+				{% endfor %}
+			</ul>
+		{% else %}
+			<section class="thanks-block">
+				<p class="thanks">Nothing here</p>
+			</section>
+		{% endif %}
+	</article>
+{% endblock %}

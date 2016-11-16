@@ -1,0 +1,31 @@
+{% extends "_layout" %}
+{% set title = "Latest News" %}
+{% block content %}
+	<div class="banner small">
+		<div class="banner-inner">
+			<div class="banner-copy body-wrapper">
+				<h1>News and Events</h1>
+			</div>  
+		</div>
+	</div>
+	<div class="body-wrapper">
+	{% paginate craft.entries.section('newsAndEvents').limit(4) as newsEntries %}
+		{% for entry in newsEntries %}
+			<div class="side-image">
+				  {% set image = entry.hero.first() %}
+				  {% if image %}
+				  	<div class="images-wrapper" style="background-image:url('{{ image.getUrl('medium') }}');"></div>
+				  {% else %}
+				  	<div class="images-wrapper" style="background-image:url('{{ siteUrl }}assets/images/header.jpg');"></div>
+				  {% endif %}
+				    <div class="side-image-content">
+				      {% set tag = entry.type %}
+				      <h4><a href="{{siteUrl}}{{tag}}">{{ tag.name }}</a></h4>
+				      <h1><a href="{{ entry.url }}">{{ entry.title }}</a></h1>
+				      <p>{{ entry.subtitle }}</p><p><a href="{{ entry.url }}" class="read-more">Read More <span>&rsaquo;</span></a></p>
+				  </div>
+				</div>
+		{% endfor %}
+		{% include "_partials/pagination" %}	
+	</div>
+{% endblock %}

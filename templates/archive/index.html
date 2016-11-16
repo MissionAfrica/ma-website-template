@@ -1,0 +1,32 @@
+{% extends "_layout" %}
+{% set title = entry.title %}
+
+{% block content %}
+	{% set image = entry.hero.first() %}
+	<div class="banner" {% if image %}style="background-image:url('{{ image.getUrl('hero') }}');"{% endif %}>
+		<div class="banner-inner">
+			<div class="banner-copy body-wrapper">
+				<h1>{{entry.title}}</h1>
+			</div>
+		</div>
+	</div>
+	<div class="body-wrapper">
+		
+	
+
+	{% for entry in craft.entries.type('events').find() %}
+		<div class="side-image">
+			  {% set image = entry.hero.first() %}
+			  {% if image %}
+			  	<div class="images-wrapper" style="background-image:url('{{ image.getUrl }}');"></div>
+			  {% else %}
+			  	<div class="images-wrapper" style="background-image:url('{{ siteUrl }}assets/images/logo-fat.png');"></div>
+			  {% endif %}
+			    <div class="side-image-content">
+			      <h1><a href="{{ entry.url }}">{{ entry.title }}</a></h1>
+			      <p>{{ entry.subtitle }}</p><p><a href="{{ entry.url }}" class="read-more">Read More <span>&rsaquo;</span></a></p>
+			  </div>
+			</div>
+	{% endfor %}
+	</div>
+{% endblock %}

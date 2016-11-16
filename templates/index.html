@@ -1,0 +1,202 @@
+{% extends "_layout" %}
+{% set image = entry.hero.first() %}
+{% block content %}
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "WebSite",
+  "url": "http://www.missionafrica.org.uk/",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "http://www.missionafrica.org.uk/search/results?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+	{% cache %}
+	<div class="hero" {% if image %}style="background-image:linear-gradient(0deg, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.5)), url('{{ image.getUrl('xlarge') }}');" {% endif %}>
+		<div class="hero-inner">
+			<div class="hero-copy">
+				<h1>{{entry.headline}}</h1>
+				<h2>{{entry.subtitle}}</h2>	
+			</div>
+			{% set buttonColour = purple %}
+			{% for button in entry.ctaButtons %}
+				{% if loop.first %}
+					{% set buttonColour = "purple" %}
+				{% else %}
+				    {% set buttonColour = "orange" %}
+				{% endif %}
+				
+			    <a class="c-button c-button--{{buttonColour}}" href="{{button.buttonLink}}" style="margin-right:0.5em;">
+			      <div class="c-ripple js-ripple">
+			        <span class="c-ripple__circle"></span>
+			      </div>
+			      {{button.buttonText}}
+			    </a>
+			{% endfor %}
+		</div>
+	</div>
+	{% endcache %}
+	<section class="sub-hero">
+		<div class="sub-hero-inner">
+			<article class="potd">
+				<h3>Prayer for today</h3>
+				<h4>{{ now|date("l jS F Y") }}</h5>
+				{% set prayers = craft.entries.section(' prayerOfTheDay ').limit(null) %}
+				{% set today = now.w3cDate() %}
+				{% for potd in prayers %}
+					{% if potd.date == today %}
+						{{ potd.prayer }}
+					{% endif %}
+				{% endfor %}
+				<br><a href="{{siteUrl}}prayer#pm" class="read-more">Read more <span>&rsaquo;</span></a>
+			</article>
+			<article class="focus">
+				<h3>Mission Focus</h3>
+				{% for missionFocus in craft.entries.section( 'ministries' ).featuredMinistry('1').order('RAND()').limit(1) %}
+					<h4><a href="{{missionFocus.url}}" style="color:#fff;">{{ missionFocus.title }}</a></h4>
+					
+					{% set image = missionFocus.hero.first() %}
+					{% if image %}
+						<img src="{{ image.getUrl('thumb') }}" alt="{{ image.title }}" width="280" height="204">
+					{% endif %}
+					{{ missionFocus.subtitle | trimit(140)}}
+					<br><a href="{{missionFocus.url}}" class="read-more">Read more <span>&rsaquo;</span></a>
+				{% endfor %}
+			</article>
+		</div>		
+	</section>
+	{% set missionaries = craft.entries.relatedTo(relationParam).section('missionaries').order('RAND()').limit(3).find() %}
+	{% if missionaries|length %}
+		<div class="body-wrapper">
+			<header class="section-title">
+				<div class="section-heading">
+					<h1>Our Missionaries</h1>
+				</div>
+				<div class="view-all">
+					<a href="{{ siteUrl }}missionaries">
+						View all
+						<span>&times;</span>
+					</a>
+				</div>		
+			</header>
+			<div class="cards">
+			{% for missionary in missionaries %}
+				  <div class="card"><a href="{{missionary.url}}">
+				    <div class="card-image">
+				      <img src="{{missionary.hero.first().getUrl('small')}}" alt="">
+				    </div>
+				    <div class="card-header">
+				      {{missionary.title}}
+				    </div>
+				    <div class="card-copy">
+				      <p>{{missionary.subtitle | trimit(150)}}</p>
+				    </div>
+				    <div class="card-link">
+				    	<a href="{{missionary.url}}" class="read-more">Read more &rsaquo;</a>
+				    </div></a>
+				  </div>
+				
+			{% endfor %}
+			</div>
+		</div>
+	{% endif %}
+	<div class="full-width--light-gray">
+		<div class="body-wrapper">
+			<header class="section-title">
+				<div class="section-heading">
+					<h1>Current Opportunities</h1>
+				</div>
+				<div class="view-all">
+					<a href="{{ siteUrl }}opportunities">
+						View all
+						<span>&times;</span>
+					</a>
+				</div>		
+			</header>
+			<div class="grid">
+				{% for opportunity in craft.entries.section('opportunities').order('RAND()').limit(2).find() %}
+				<figure class="effect-zoe">
+					<a href="{{opportunity.url}}">
+						{% set image = opportunity.hero.first() %}
+						<div class="grid-image"><img src="{{image.geturl('medium')}}" alt="{{ opportunity.title }}"/></div>
+						{% set shortTitle = opportunity.shortTitle|split(' ') %}
+						<figcaption>
+							<h2>{{shortTitle[0]}} <span>{{shortTitle[1]}}</span> {{shortTitle[2]}}</h2>
+						</figcaption>
+					</a>			
+				</figure>
+				{% endfor %}
+			</div>
+		</div>
+	</div>
+	<div class="body-wrapper">
+		<header class="section-title">
+			<div class="section-heading">
+				<h1>Latest Articles</h1>
+			</div>
+			<div class="view-all">
+				<a href="{{ siteUrl }}articles">
+					View all
+					<span>&times;</span>
+				</a>
+			</div>		
+		</header>
+		{% for newsEntry in craft.entries.type('articles').limit(2).find() %}
+			<div class="side-image">
+			  {% set image = newsEntry.hero.first() %}
+			  {% if image %}
+			  	<div class="images-wrapper" style="background-image:url('{{ image.getUrl('medium') }}');"></div>
+			  {% else %}
+			  	<div class="images-wrapper" style="background-image:url('{{ siteUrl }}assets/images/header.jpg');"></div>
+			  {% endif %}
+			    <div class="side-image-content">
+			      <h1><a href="{{ newsEntry.url }}">{{ newsEntry.title }}</a></h1>
+			      <p>{{ newsEntry.subtitle }}</p><p><a href="{{ newsEntry.url }}" class="read-more">Read More <span>&rsaquo;</span></a></p>
+			  </div>
+			</div>
+		{% endfor %}
+	</div>
+	{% set eventParams = {
+	  type : 'events',
+	  order : 'eventDate asc',
+	  eventDate : '>=' ~ now,
+	  limit : '3'
+	} %}
+	{% set events = craft.entries(eventParams) %}
+	{% if events|length %}
+		<div class="body-wrapper">
+			<header class="section-title">
+				<div class="section-heading">
+					<h1>Upcoming events</h1>
+				</div>
+				<div class="view-all">
+					<a href="{{ siteUrl }}events">
+						View all
+						<span>&times;</span>
+					</a>
+				</div>		
+			</header>
+			<div class="cards">
+			{% for event in events %}
+				  <div class="card"><a href="{{event.url}}">
+				    <div class="card-image">
+				      <img src="{{event.hero.first().getUrl('small')}}" alt="">
+				    </div>
+				    <div class="card-header">
+				      {{event.title}}</br>
+				      <small>{{event.eventDate.format('j F Y')}}</small>
+				    </div>
+				    <div class="card-copy">
+				      <p>{{event.subtitle | trimit(100)}}</p>
+				    </div>
+				    <div class="card-link">
+				    	<a href="{{event.url}}" class="read-more">Read more &rsaquo;</a>
+				    </div></a>
+				  </div>	
+			{% endfor %}
+			</div>
+		</div>
+	{% endif %}
+{% endblock %}

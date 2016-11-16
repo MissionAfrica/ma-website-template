@@ -1,0 +1,99 @@
+{% set seoTitle = seo.seoTitle %}
+{% set seoDescription = seo.seoDescription %}
+{% set seoKeywords = seo.seoKeywords %}
+{% set seoImage = seo.seoImage %}
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB">
+<head>
+	{% block head %}
+			<meta http-equiv="X-UA-Compatible" content="IE=edge">
+			<meta charset="utf-8">
+			<title>{% if title is defined %}{{ title }} - {% endif %}{{ siteName }}</title>
+			<meta name="viewport" content="width=device-width, initial-scale=1">
+			<meta http-equiv="X-UA-Compatible" content="IE=edge">
+			<meta charset="utf-8">
+			<title>{% if title is defined %}{{ title }} - {% endif %}{{ seoTitle }}</title>
+			<meta name="description" content="{% if description is defined %}{{ description }}{% else %}{{ seoDescription }}{% endif %}"/>
+	        <meta name="keywords" content="{% for tag in seoKeywords %}{{tag.title}}, {% endfor %}"/>
+			{% if authorName is defined %}<meta name="author" content="{{ authorName }}">{% endif %}
+			
+	        {# You can then use the same fields for Facebook tags etc.. or create separate fields. #}
+	        <meta property="og:title" content="{% if title is defined %}{{ title }}{% else %}{{ seoTitle }}{% endif %}"/>
+	        <meta property="og:description" content="{% if description is defined %}{{ description }}{% else %}{{ seoDescription }}{% endif %}"/>
+	        <meta property="og:url" content="{{ craft.request.url }}">
+	        <meta property="og:type" content="article">
+	        <meta property="og:image" content="{% if image is defined %}{{ image.getUrl('hero') }}{% else %}{{ seoImage.first().getUrl('hero') }}{% endif %}"/>
+	        <meta property="og:image:width" content="1280">
+	        <meta property="og:image:height" content="450">
+	        <meta property="og:site_name" content="Mission Africa">
+	        <meta property="fb:app_id" content="791295347666319" />
+	        {% if authorFacebook is defined %}<meta property="article:author" content="{{ authorFacebook }}">{% endif %}
+	        <meta property="article:publisher" content="https://www.facebook.com/missionafrica">
+
+			<meta name="twitter:card" content="summary_large_image">
+			<meta name="twitter:site" content="@mission_africa">
+			{% if authorTwitter is defined %}<meta name="twitter:creator" content="{{ authorTwitter }}">{% endif %}
+			<meta name="twitter:title" content="{% if title is defined %}{{ title }}{% else %}{{ seoTitle }}{% endif %}">
+			<meta name="twitter:description" content="{% if description is defined %}{{ description | trimit(195) }}{% else %}{{ seoDescription | trimit(195) }}{% endif %}">
+			<meta name="twitter:image:src" content="{% if image is defined %}{{ image.getUrl('hero') }}{% else %}{{ seoImage.first().getUrl('hero') }}{% endif %}">
+
+			{% if authorGooglePlus is defined %}<link rel="author" href="{{ authorGooglePlus }}">{% endif %}
+			<link rel="publisher" href="https://www.google.com/+missionafrica">
+			<meta itemprop="name" content="{% if title is defined %}{{ title }}{% else %}{{ seoTitle }}{% endif %}">
+			<meta itemprop="description" content="{% if description is defined %}{{ description }}{% else %}{{ seoDescription }}{% endif %}">
+			<meta itemprop="image" content="{% if image is defined %}{{ image.getUrl('hero') }}{% else %}{{ seoImage.first().getUrl('hero') }}{% endif %}">
+
+			<meta name="theme-color" content="#5a3e7a">
+
+			<link rel="stylesheet" href="{{ siteUrl }}{{ rev('assets/css/styles.css') }}">
+			<script src="{{ siteUrl }}assets/js/respond.js"></script>
+			<script src="{{ siteUrl }}assets/js/modernizr.min.js"></script>
+			<link href='//fonts.googleapis.com/css?family=Roboto:400,700,300' rel='stylesheet' type='text/css'>
+			<link href='//fonts.googleapis.com/css?family=Muli' rel='stylesheet' type='text/css'>
+			<link rel="apple-touch-icon-precomposed" sizes="57x57" href="{{siteUrl}}assets/favicons/apple-touch-icon-57x57.png" />
+			<link rel="apple-touch-icon-precomposed" sizes="114x114" href="{{siteUrl}}assets/favicons/apple-touch-icon-114x114.png" />
+			<link rel="apple-touch-icon-precomposed" sizes="72x72" href="{{siteUrl}}assets/favicons/apple-touch-icon-72x72.png" />
+			<link rel="apple-touch-icon-precomposed" sizes="144x144" href="{{siteUrl}}assets/favicons/apple-touch-icon-144x144.png" />
+			<link rel="apple-touch-icon-precomposed" sizes="120x120" href="{{siteUrl}}assets/favicons/apple-touch-icon-120x120.png" />
+			<link rel="apple-touch-icon-precomposed" sizes="152x152" href="{{siteUrl}}assets/favicons/apple-touch-icon-152x152.png" />
+			<link rel="icon" type="image/png" href="{{siteUrl}}assets/favicons/favicon-32x32.png" sizes="32x32" />
+			<link rel="icon" type="image/png" href="{{siteUrl}}assets/favicons/favicon-16x16.png" sizes="16x16" />
+			<meta name="application-name" content="Mission Africa"/>
+			<meta name="msapplication-TileColor" content="#5A3E7A" />
+			<meta name="msapplication-TileImage" content="{{siteUrl}}assets/favicons/mstile-144x144.png" />
+			<!-- Facebook Pixel Code -->
+			<script>
+			!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+			n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+			n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+			t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+			document,'script','https://connect.facebook.net/en_US/fbevents.js');
+			fbq('init', '1200559636627698');
+			fbq('track', 'PageView');
+			</script>
+			<noscript><img height="1" width="1" style="display:none"
+			src="https://www.facebook.com/tr?id=1200559636627698&ev=PageView&noscript=1"
+			/></noscript>
+			<!-- DO NOT MODIFY -->
+			<!-- End Facebook Pixel Code -->
+		{% endblock %}
+	</head>
+	<body>
+		<!-- Google Tag Manager -->
+		<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-NFQBWW"
+		height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+		<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+		new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+		j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+		'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+		})(window,document,'script','dataLayer','GTM-NFQBWW');</script>
+		<!-- End Google Tag Manager -->
+		{% block body %}{% endblock %}
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+		<script src="{{ siteUrl }}assets/js/main.js"></script>
+		<script type="text/javascript" src="http://s7.addthis.com/js/300/addthis_widget.js#pubid=ra-55f67617d7f79ecd" async="async"></script>
+		{% block foot %}	
+		{% endblock %}
+	</body>
+</html>

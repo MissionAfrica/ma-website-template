@@ -1,0 +1,297 @@
+{% extends "_layout" %}
+{% set title = entry.title %}
+{% set description = entry.thanksText %}
+{% set image = entry.hero.first() %}
+{% set query = craft.request.getParam('to') %}
+
+{% block content %}
+	
+	
+	<div class="hero" {% if image %}style="background-image:linear-gradient(0deg, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.5)), url('{{ image.getUrl('hero') }}')"{% endif %}>
+
+		<div class="hero-inner">
+			
+		</div>
+		<div class="body-wrapper">
+			
+		{# <div class="donate-form">
+			<div id="loading" class="loading" style="display:none">
+				<div></div>
+				<div></div>
+				<div></div>
+			</div>
+			<form class="form-body" id="charge-form" method="post" action="" accept-charset="UTF-8">
+			    <input type="hidden" name="action" value="charge/charge">
+				<input type="hidden" name="redirect" value="give/thanks">
+
+		        {% macro errorList(errors) %}
+		        {% if errors %}
+		            <div class="flash-error">
+		                {% for error in errors %}
+		                    <span>{{ error }}</span>
+		                {% endfor %}
+		            </div>
+		        {% endif %}
+		        {% endmacro %}
+
+		        {% if charge is defined %}
+		            {{ _self.errorList(charge.getErrors('general')) }}
+		        {% endif %}
+
+
+		  		<div id="payment-errors"></div>
+
+		  		
+		  		
+		    		<div class="form-field"><label for="customerName" class="">Name*
+
+		     			<input type="text" class="form-control" id="customerName" name="customerName" placeholder="Joe Smith" value="{% if charge is defined %}{{ charge.customerName }}{% endif %}" data-stripe="name" required>
+		          {% if charge is defined %}
+		            {{ _self.errorList(charge.getErrors('customerName')) }}
+		          {% endif %}</label></div>
+
+		  		
+		    		<div class="form-field"><label for="customerEmail" class="">Email*
+		     			<input type="email" class="form-control" id="customerEmail" name="customerEmail" placeholder="joe@example.com" value="{% if charge is defined %}{{ charge.customerEmail }}{% endif %}" required >
+			          {% if charge is defined %}
+			            {{ _self.errorList(charge.getErrors('customerEmail')) }}
+			          {% endif %}</label></div>
+			          <div >
+			          <div class="form-field"><div class="cashbox-container">
+			          	<label for="planAmount" class="">Donation*
+			          	<input type="tel" required class="cashbox form-control" value="{% if charge is defined %}{{ charge.planAmount }}{% endif %}" name="planAmount" id="planAmount" placeholder="20"></label>
+			          </div>  </div>
+		        <div class="form-field">
+		        	<label for="supporting" class="">Supporting*
+		        	<div class="selectwrap">
+			        	<select name="supporting" id="supporting" required class="form-control">
+			        		<option value="Where the need is greatest"{% if not query|length %} selected{% endif %}>Where the need is greatest</option>
+			        		<optgroup label="Missionaries">
+			        			{% for missionary in craft.entries.section('missionaries') %}
+			        			    <option value="{{missionary}}"{% if query == missionary.id %} selected{% endif %}>{{missionary}}</option>
+			        			{% endfor %}
+			        		</optgroup>
+			        		<optgroup label="Ministries">
+			        			{% for ministry in craft.entries.section('ministries') %}
+			        			    <option value="{{ministry}}"{% if query == ministry.id %} selected{% endif %}>{{ministry}}</option>
+			        			{% endfor %}		        			
+			        		</optgroup>
+			        	</select>
+			        </div>
+		        </div>
+		        {% if charge is defined and charge.cardToken is not null %}
+
+		            <input type="hidden" name="cardToken" value="{{ charge.cardToken }}" data-stripe="token"/>
+		            <input type="hidden" name="cardLast4" value="{{ charge.cardLast4 }}"/>
+		            <input type="hidden" name="cardType" value="{{ charge.cardType }}"/>
+
+		            <p>&#9679;&#9679;&#9679;&#9679; &#9679;&#9679;&#9679;&#9679; &#9679;&#9679;&#9679;&#9679; {{ charge.cardLast4 }}</p>
+
+		        {% else %}
+
+      		
+        		<div class="form-field"><label for="cardNumber" class="cards"><span>Card Number*<img src="assets/images/visa.png" class="cc cc-visa"><img src="assets/images/mc.png" class="cc cc-mastercard"></span>
+        		
+         			<input type="text" class="form-control" id="cardNumber" placeholder="&#9679;&#9679;&#9679;&#9679; &#9679;&#9679;&#9679;&#9679; &#9679;&#9679;&#9679;&#9679; &#9679;&#9679;&#9679;&#9679;" data-stripe="number" required>
+					{% if charge is defined %}
+		            {{ _self.errorList(charge.getErrors('cardNumber')) }}
+		          {% endif %}
+         		</label></div>
+
+
+      		
+        		<div class="form-field one-half first"><label for="cardCvc" class="">Card CVC*
+         		<input type="text" class="form-control" id="cardCvc" placeholder="&#9679;&#9679;&#9679;" data-stripe="cvc" required></div></label>
+				
+      			<div class="form-field one-half last">
+			  	<label>
+			      Expiry date*
+			      <div class="input-col">
+			      <input type="text" id="cardExpiry" placeholder="MM / YYYY" class="form-control" required />
+			      <input type="hidden" id="cardExpMonth" data-stripe="exp_month">
+			      <input type="hidden" id="cardExpYear" data-stripe="exp_year">
+			      </div>
+			    </label>
+			  </div>
+			  {% if charge is defined %}
+			    {{ _self.errorList(charge.getErrors('cardCvc')) }}
+			  {% endif %}
+			  {% if charge is defined %}
+			    {{ _self.errorList(charge.getErrors('cardExpiry')) }}
+			  {% endif %}
+			<input type="hidden" name="description" id="description" value="Donation"> 
+        {% endif %}
+        				<div class="modal">
+        					<input type="checkbox" id="giftaidcheckbox" name="meta[giftAid]" style="margin-bottom: 0.75em;" value="{% if charge is defined %}{{ charge.meta.giftAid }}{% endif %}">
+        					Gift Aid boosts your donation by <span id="giftBoost">25%</span> – for free!
+        				  <label for="modal-1">
+        				    <div class="modal-trigger">?</div>
+        				  </label>
+        				  <input class="modal-state" id="modal-1" type="checkbox" />
+        				  <div class="modal-fade-screen">
+        				    <div class="modal-inner">
+        				      <div class="modal-close" for="modal-1"></div>
+        				      <h1>Gift Aid</h1>
+        				      <p class="modal-intro">Gift aid your donations and Mission Africa receives an extra 25p for every pound you donate under the gift aid scheme – at no extra cost to you!</p>
+        				      <p class="modal-content">By ticking this box you agree that you have paid or will pay an amount of amount of Income Tax and/or Capital Gains Tax in each tax year that is at least equal to the amount of tax that all the charities or Community Amateur Sports Clubs (CASCs) that I donate to will reclaim on my gifts for that tax year. I understand that other taxes such as VAT and Council Tax do not qualify. I understand that Mission Africa will reclaim 25p of tax on every £1 that I gave.</p>
+        				    </div>
+        				  </div>
+        				</div>
+        			</div>
+        			<div id="giftaidfields" style="display:none;">
+        			  <div class="form-field"><label for="cardAddressLine1" >Address*
+        	     			<input type="text" class="form-control" id="cardAddressLine1" name="cardAddressLine1" placeholder="" value="{% if charge is defined %}{{ charge.cardAddressLine1 }}{% endif %}" class="required" data-stripe="address_line1">
+        		          {% if charge is defined %}
+        		            {{ _self.errorList(charge.getErrors('cardAddressLine1')) }}
+        		          {% endif %}</label>
+        	          </div>
+        	          <div class="form-field"><label for="cardAddressCity" >Town / City*
+             				<input type="text" class="form-control" id="cardAddressCity" name="cardAddressCity" placeholder="" value="{% if charge is defined %}{{ charge.cardAddressCity }}{% endif %}" class="required" data-stripe="address_city">
+        		          {% if charge is defined %}
+        		            {{ _self.errorList(charge.getErrors('cardAddressCity')) }}
+        		          {% endif %}</label>
+        		      </div>
+        	          <div class="form-field"><label for="cardAddressZip" >Post Code*
+             			<input type="text" class="form-control" id="cardAddressZip" name="cardAddressZip" placeholder="" value="{% if charge is defined %}{{ charge.cardAddressZip }}{% endif %}" class="required" data-stripe="address_zip">
+        		          {% if charge is defined %}
+        		            {{ _self.errorList(charge.getErrors('cardAddressZip')) }}
+        		          {% endif %}</label>
+        		       </div>
+        			</div>
+     			<button type="submit" id="submitBtn" disabled>Donate</button>
+	</form>
+
+			</div> #}
+		</div>
+	</div>
+{% if entry.gridItems %}
+<div class="grid-items">
+	{% for item in entry.gridItems %}
+	   <div href="javascript:void(0)" class="grid-item{% if item.wideBlock %} grid-item-big{% endif %} colour-{{item.backgroundColour}}">
+	      <h1>{{item.headline}}</h1>
+	      <p>{{item.body}}</p>
+	    </div>
+	{% endfor %}
+</div>
+{% endif %}
+
+<div class="full-width--light-gray">
+	<section class="thanks-block">
+		<p class="thanks">{{entry.thanksText}}</p>
+		<img src="{{siteUrl}}assets/images/logo-fat.png" alt="" style="width:10em; margin: 0 auto;">
+	</section>	
+</div>
+	<section class="body-wrapper">
+		<h2>Other Ways to Give</h2>
+		<div class="cards">
+			{% for way in  craft.entries.section('otherWaysToGive') %}
+			    <div class="card no-photo">
+				    <div class="card-header">
+				      {{way.title}}
+				    </div>
+				    <div class="card-copy">
+				    {% set type = way.getType() %}
+				    {% switch type %}  
+				    	{% case "otherWaysDownload" %}
+				    		<p>{{way.body | trimit(150)}}</p>
+				    		</div>
+				    		{% for asset in way.downloadLink %}
+					      		<div class="card-link"><a href="{{ asset.url }}" class="read-more" target="_blank">Download &rsaquo;</a> 
+					      	{% endfor %}  
+				    	{% case "otherWaysLink" %}
+				    		<p>{{way.body | trimit(150)}}</p>
+				    		</div>
+				    	  	<div class="card-link"><a href="{{way.pageLink}}" class="read-more">Find out more &rsaquo;</a>				    				    
+				    	{% case "otherWaysPage" %}
+					    	<p>{{way.body | trimit(150)}}</p>
+					    	</div>
+					      	<div class="card-link"><a href="{{way.url}}" class="read-more">Find out more &rsaquo;</a>  
+					    {% default %}
+					    	<p>{{type}}</p>  
+				    {% endswitch %}
+				    
+				      
+				    </div>
+				  </div>
+			{% endfor %}
+		</div>
+	</section>
+{% endblock %}
+{% block foot %}
+	<script src="{{siteUrl}}assets/js/payment.js"></script>
+	<script src="{{ resourceUrl('charge/js/stripe_v2.min.js') }}"></script>
+	<script src="{{ resourceUrl('charge/js/jquery.charge.js') }}"></script>
+    <script>
+		(function(window, undefined) {
+            Stripe.setPublishableKey('{{ craft.charge.getPublicKey() }}');
+            $(this).charge('#charge-form', '#payment-errors');
+		})(window);
+		// include jquery and jquery.payment before here
+		jQuery(document).ready(function($) {
+			var giftAidString = "No";
+			var supportingVal = $('#supporting').val()
+			var validateDetails = function() {
+			  // set variables for the expiry date validation, cvc validation and expiry date 'splitter'
+			  $('#cardNumber').payment('formatCardNumber');
+			  $('#cardCvc').payment('formatCardCVC');
+			  $('#planAmount').on("change keyup",function() {
+			  	var planAmountVal = $('#planAmount').val();
+			  	var giftBoostVal = planAmountVal * 0.25;
+			  	if (planAmountVal < 1) {
+			  		$('#submitBtn').prop('disabled', true);
+			  		$('#giftBoost').html('25%');
+			  	}else{
+			  		$('#submitBtn').prop('disabled', false);
+			  		$('#giftBoost').html('<strong>£'+ giftBoostVal.toFixed(2) +'</strong>');
+			  	}
+			  	;
+			  });
+			  $('#cardNumber').on("change keyup",function() {
+			  	if ($(this).hasClass('visa')) {
+			  		$('.cc-visa').fadeTo('fast', 1)
+			  	}
+			  	else{
+			  		$('.cc-visa').fadeTo('fast', 0.3)
+			  	}
+			  	if ($(this).hasClass('mastercard')) {
+			  		$('.cc-mastercard').fadeTo('fast', 1)
+			  	}
+			  	else{
+			  		$('.cc-mastercard').fadeTo('fast', 0.3)
+			  	}
+			  });
+			  var expiry = $('#cardExpiry').payment('cardExpiryVal');
+			  var validateCVC = $.payment.validateCardCVC($('#cardCvc').val());
+			  $('#cardExpiry').payment('formatCardExpiry');
+			  // use cardExpiryVal to parse and separate out the month and year
+			  var expiry = $('#cardExpiry').payment('cardExpiryVal');
+			  // fetch the month and year from the expiry object
+			  var expiry_month = expiry["month"];
+			  var expiry_year = expiry["year"];
+			  $('#cardExpMonth').val(expiry["month"]);
+			  $('#cardExpYear').val(expiry["year"]);
+			  supportingVal = $('#supporting').val();
+			}
+			// this runs the above function every time stuff is entered into the card inputs
+			$('.form-control').bind('change paste keyup', function() {
+			  validateDetails();
+			  setDescription();
+			});
+			var setDescription = function() {
+				$('#description').val('Donation to Mission Africa.\r\n\r\nSupporting: '+ supportingVal +'.\r\n\r\nGift Aid: ' + giftAidString);
+			}
+			$("input#giftaidcheckbox").change(function() {
+			    if (this.checked) {
+			      giftAidString = "Yes";
+			      $('#giftaidfields').slideDown();
+				    $('#giftaidfields .required').prop('required',true);
+			    } else {
+			      giftAidString = "No";
+			      $('#giftaidfields').slideUp();
+			      $('#giftaidfields .required').prop('required',false);
+			    }
+			    setDescription();
+			  });
+		});
+	</script>
+{% endblock %}

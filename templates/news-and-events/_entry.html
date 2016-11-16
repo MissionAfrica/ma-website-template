@@ -1,0 +1,111 @@
+{% extends "_layout" %}
+{% set title = entry.title %}
+{% set description = entry.subtitle %}
+{% set image = entry.hero.first() %}
+{% set authorTwitter = entry.authorTwitter %}
+{% set authorFacebook = entry.authorFacebook %}
+{% set authorGooglePlus = entry.authorGooglePlus %}
+{% switch entry.type %}
+	{% case "articles" %}
+		{% set type = "article" %}
+	{% case "events" %}
+		{% set type = "event" %}
+	{% default %}
+		{% set type = "news" %}
+{% endswitch %}
+
+{% block content %}
+	
+	<div class="banner" {% if image %}style="background-image:url('{{ image.getUrl('hero') }}');"{% endif %}>
+		<div class="banner-inner">
+			<div class="banner-copy body-wrapper">
+				<h1>{{ entry.title }}</h1>
+				<p>{{entry.subtitle}}
+					{% if (type == "article") or (type == "news") %}
+						<br><br><small>Posted on {{ entry.postDate.format('F d, Y') }}</small>
+						{% if entry.authorName|length %}<br><small>By {{ entry.authorName }}</small>{% endif %}			
+					{% endif %}
+					{% if type == "event" %} 
+						<br><br>{{entry.eventDate.format('l, jS F Y')}}
+						<br>{{entry.eventDate.format('g:ia')}}
+					{% endif %}
+				</p>
+			</div>
+		</div>
+	</div>	
+		<!-- Go to www.addthis.com/dashboard to customize your tools -->
+		{% if (type == "article") %}
+			<div class="flex">
+				{% include "_partials/body" %}				
+			</div>
+
+		{% else %}
+			<article>
+			    {{ entry.body }}
+			</article>
+		{% endif %}
+		{% if type == "event" %}
+			<article>
+				{% set options = {
+				    id: 'map', 
+				    width: '100%', 
+				    height: '300px'
+				} %}
+
+				{{ craft.googleMaps.map(options) }}
+				{{ craft.googleMaps.data('map', entry.eventMap, {
+	                fitBounds: false,
+	                }) 
+	            }}
+				{{ craft.googleMaps.zoom('map', 14) }}
+				{% for marker in entry.eventMap.markers %}
+					{{ craft.googleMaps.center('map', marker.address) }}
+				{% endfor %}
+			</article>            
+		{% endif %}
+		<article><div class="addthis_sharing_toolbox"></div></article>
+
+	{% if entry.authorEmail|length %}
+		<div class="body-wrapper">
+			<div class="pdf">
+			  <div class="pdf-image">
+			    <img src="" id="authorPhoto" style="padding:0;">
+			  </div>
+			  <div class="pdf-content">
+			    <h1 id="authorName"></h1>
+			    <p id="authorBio"></p>
+			    
+			  </div>
+			</div>		
+		</div>
+	{% endif%}	
+{% endblock %}
+{% block foot %}
+	{% if entry.authorEmail|length %}
+	<script type="text/javascript">
+	    $.ajax({
+            url: "http://www.gravatar.com/{{ craft.gravatar.url(entry.authorEmail) }}.json",
+            async: false,       
+            type: 'GET',
+            dataType: 'jsonp',
+            crossDomain: true,
+            success: function(data){
+                populateAuthor(data);
+            },
+            error: function() {
+                hideBio();
+            },
+        });
+        function populateAuthor( profile ) {
+		    $('#authorName').html(profile.entry[0].displayName);
+		    $('#authorBio').html(profile.entry[0].aboutMe);
+		    $('#authorPhoto').attr("src", profile.entry[0].thumbnailUrl);						
+		};
+		function hideBio(){
+			$('.pdf').hide();
+		}
+	</script>
+
+	{% endif %}
+
+{% endblock %}

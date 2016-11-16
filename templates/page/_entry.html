@@ -1,0 +1,204 @@
+{% extends "_layout" %}
+{% set title = entry.title %}
+{% set description = entry.subtitle %}
+{% set image = entry.hero.first('large') %}
+{% block content %}
+
+		<div class="banner" {% if image %}style="background-image:url('{{ image.getUrl('hero') }}');"{% endif %}>
+			<div class="banner-inner">
+				<div class="banner-copy body-wrapper">
+					<h1>{{ entry.title }}</h1>
+					<p>{{ entry.subtitle }}</p>
+				</div>
+			</div>
+		</div>
+		<article>
+			{{ entry.body }}
+			<div class="addthis_sharing_toolbox"></div>
+		</article>	
+	{% if entry.showEmail  %}
+		<div class="body-wrapper">
+		<h2>Interested? Get in touch.</h2>
+			{% macro errorList(errors) %}
+			    {% if errors %}
+			        <ul class="errors">
+			            {% for error in errors %}
+			                <li>{{ error }}</li>
+			            {% endfor %}
+			        </ul>
+			    {% endif %}
+			{% endmacro %}
+
+			{% from _self import errorList %}
+			<div id="feedback" class="" style="display:none;">
+				Your message was sent successfully!
+			</div>
+			<div id="loading" class="loading" style="display:none">
+				<div></div>
+				<div></div>
+				<div></div>
+			</div>
+			<form id="my-form" method="post" action="" accept-charset="UTF-8">
+			    {{ getCsrfInput() }}
+			    <input type="hidden" name="action" value="contactForm/sendMessage">
+
+			    <h3><label for="fromName">Your Name</label></h3>
+			    <input id="fromName" type="text" name="fromName" value="{% if message is defined %}{{ message.fromName }}{% endif %}" required >
+			    {{ message is defined and message ? errorList(message.getErrors('fromName')) }}
+
+			    <h3><label for="fromEmail">Your Email</label></h3>
+			    <input id="fromEmail" type="text" name="fromEmail" value="{% if message is defined %}{{ message.fromEmail }}{% endif %}" required >
+			    {{ message is defined and message ? errorList(message.getErrors('fromEmail')) }}
+
+			    <input id="opportunity" type="hidden" name="message[Opportunity]" value="{{ entry.title }}">
+			    <input id="cheeky" name="cheeky" type="text">
+			    <h3><label for="message">Message</label></h3>
+			    <textarea rows="10" cols="40" id="message" name="message[body]">{% if message is defined %}{{ message.message }}{% endif %}</textarea required >
+			    {{ message is defined and message ? errorList(message.getErrors('message')) }}
+
+			    <input type="submit" value="Send">
+			</form>
+		</div>
+	{% endif %}
+
+	{% if entry.prayerLetter|length  %}
+	{% set letters = entry.prayerLetter %}
+	<div class="body-wrapper">
+		{% for letter in letters %}
+		<div class="pdf">
+		  <div class="pdf-image">
+		    <img src="{{siteUrl}}assets/images/pdf-icon.png" alt="Logo image">
+		  </div>
+		  <div class="pdf-content">
+		    <h1>Latest prayer update - <small>{{ letter.dateOfLetter }}</small></h1>
+		    <p>{{ letter.blurb | trimit(150) }} {{ letter.getLink() }}<a href="{{ letter.url }}" class="read-more" target="_blank">Read More &rsaquo;</a></p>
+		    
+		  </div>
+		</div>
+		{% endfor %}		
+	</div>	
+
+	{% endif %}
+	{% set missionaries = craft.entries.section('missionaries').relatedTo(entry).find() %}
+	{% if missionaries %}
+		<div class="body-wrapper">
+			<h2>Related missionaries</h2>				
+			<div class="cards">
+			{% for missionary in missionaries %}
+				  <div class="card"><a href="{{missionary.url}}">
+				    <div class="card-image">
+				      <img src="{{missionary.hero.first().getUrl('small')}}" alt="">
+				    </div>
+				    <div class="card-header">
+				      {{missionary.title}}
+				    </div>
+				    <div class="card-copy">
+				      <p>{{missionary.subtitle | trimit(150)}}</p>
+				    </div>
+				    <div class="card-link"><a href="{{missionary.url}}" class="read-more">Read more &rsaquo;</a></div></a>
+				  </div>
+				
+			{% endfor %}
+			</div>
+		</div>
+	{% endif %}
+	{% set ministries = craft.entries.section('ministries').relatedTo(entry).find() %}
+	{% if ministries %}
+		<div class="body-wrapper">
+			<h2>Related ministries</h2>
+			<div class="cards">
+			{% for ministry in ministries %}
+				  <div class="card"><a href="{{ministry.url}}">
+				    <div class="card-image">
+				      <img src="{{ministry.hero.first().getUrl('small')}}" alt="">
+				    </div>
+				    <div class="card-header">
+				      {{ministry.shortTitle}}
+				    </div>
+				    <div class="card-copy">
+				      <p>{{ministry.subtitle | trimit(150)}}</p>
+				    </div>
+				    <div class="card-link"><a href="{{ministry.url}}" class="read-more">Read more &rsaquo;</a></div></a>
+				  </div>
+				
+			{% endfor %}
+			</div>
+		</div>
+	{% endif %}
+	{% if not entry.showEmail %}
+		{% set wwdcategory = craft.categories.group('whatWeDo').relatedTo(entry) %}
+		{% set opportunities = craft.entries.section('opportunities').relatedTo(entry).find() %}
+		{% if opportunities %}
+			<div class="body-wrapper">
+				<h2>Related opportunities</h2>
+				<div class="cards">
+				{% for opportunity in opportunities %}
+					  <div class="card">
+					    <div class="card-image">
+					      <img src="{{opportunity.hero.first().getUrl('small')}}" alt="">
+					    </div>
+					    <div class="card-header">
+					      <a href="{{opportunity.url}}">{{opportunity.shortTitle}}</a>
+					    </div>
+					    <div class="card-copy">
+					      <p>{{opportunity.subtitle | trimit(150)}}</p>
+					    </div>
+					    <div class="card-link"><a href="{{opportunity.url}}" class="read-more">Read more &rsaquo;</a></div>
+					  </div>
+					
+				{% endfor %}
+				</div>
+			</div>
+		{% endif %}
+	{% endif %}
+{% endblock %}
+{% block foot %}
+	<script>
+		$( document ).ajaxStart(function() {
+		  $('#feedback').removeClass('flash-success');
+		  $('#feedback').removeClass('flash-error');
+		  $( "#loading" ).slideDown();
+		  $( "#my-form" ).slideUp();
+		});
+		$('#my-form').submit(function(ev) {
+		    // Prevent the form from actually submitting
+		    ev.preventDefault();
+
+		    // Get the post data
+		    var data = $(this).serialize();
+
+		    // Send it to the server
+		    $.post('/', data, function(response) {
+		        if (response.success) {
+		        	 $( "#loading" ).slideUp();
+		        	 $('#feedback').addClass('flash-success');
+      	             $('#feedback').slideDown();
+		        } else {
+		            // response.error will be an object containing any validation errors that occurred, indexed by field name
+		            // e.g. response.error.fromName => ['From Name is required']
+		            // Loop through the errors and append to relevant fields
+                    for ( var fieldId in response.error ) {
+
+                        // Create the <ul>
+                        var $errors = $( '<ul class="errors plain" />' );
+
+                        // Wrap the error messages in <li> tags
+                        var messages = $.map(response.error[fieldId], function(message){
+                            return '<li>' + message + '</li>';
+                        });
+
+                        // Append the error messages to the ul
+                        $errors.append( messages.join( '' ) );
+
+                        // Select the input element and append the .errors <ul> after it.
+                        $('#'+fieldId).after($errors);
+                        $('#'+fieldId).addClass('error')
+
+                    }
+		            $( "#loading" ).slideUp();
+		  			$( "#my-form" ).slideDown();
+		        }
+		    });
+		});
+	</script>
+{% endblock %}

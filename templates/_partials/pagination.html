@@ -1,0 +1,19 @@
+{% if paginate.totalPages > 1 %}
+    <div class="pagination">
+        <ul>
+            {% if paginate.totalPages > 7 %}
+                <li class="page-prev"><a href="{{ paginate.firstUrl }}">1</a>
+            {% endif %}
+            {% for page, url in paginate.getPrevUrls(3) %}
+                <li><a href="{{ url }}">{{ page }}</a></li>
+            {% endfor %}
+                <li class="current">{{ paginate.currentPage }}</li>
+            {% for page, url in paginate.getNextUrls(3) %}
+                <li><a href="{{ url }}">{{ page }}</a></li>
+            {% endfor %}
+            {% if paginate.totalPages > 7 %}
+                <li class="page-next"><a href="{{ paginate.lastUrl }}">{{paginate.totalPages}}</a></li>
+            {% endif %}
+        </ul>
+    </div>
+{% endif %}

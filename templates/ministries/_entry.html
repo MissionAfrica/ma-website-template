@@ -1,0 +1,82 @@
+{% extends "_layout" %}
+{% set title = entry.title %}
+{% set description = entry.subtitle %}
+{% set image = entry.hero.first() %}
+{% block content %}
+	
+	<div class="banner" {% if image %}style="background-image:url('{{ image.getUrl('hero') }}');"{% endif %}>
+		<div class="banner-inner">
+			<div class="banner-copy body-wrapper">
+				<h1>{{ entry.title }}</h1>
+				<p>{{ entry.subtitle }}</p>
+			</div>
+		</div>
+	</div>
+	<article>
+		{{ entry.body }}
+		<p class="center"><a href="{{siteUrl}}give?to={{entry.id}}" class="button">Support this ministry</a></p>
+		<div class="addthis_sharing_toolbox"></div>
+	</article>		
+
+	{% set missionaries = craft.entries.section('missionaries').relatedTo(entry).find() %}
+	{% if missionaries %}
+		<div class="body-wrapper">
+			<h2>Related missionaries</h2>				
+			<div class="cards">
+			{% for missionary in missionaries %}
+				  <div class="card"> <a href="{{missionary.url}}">
+				    <div class="card-image">
+				      <img src="{{missionary.hero.first().getUrl('small')}}" alt="">
+				    </div>
+				    <div class="card-header">
+				     {{missionary.title}}
+				    </div>
+				    <div class="card-copy">
+				      <p>{{missionary.subtitle | trimit(150)}}</p>
+				    </div>
+				    <div class="card-link">
+				    	<a href="{{missionary.url}}" class="read-more">Read more &rsaquo;</a>
+				    </div></a>
+				  </div>
+				
+			{% endfor %}
+			</div>
+		</div>
+	{% endif %}
+	{% set opportunities = craft.entries.section('opportunities').relatedTo(entry).find() %}
+	{% if opportunities %}
+		<div class="body-wrapper">
+			<header class="section-title">
+				<div class="section-heading">
+					<h2>Opportunities</h2>
+				</div>
+				{% if opportunities|length > 3 %}
+					<div class="view-all">
+						<a href="{{ siteUrl }}opportunities/results?r={{ entry.id }}">
+							View more
+							<span>&times;</span>
+						</a>
+					</div>
+				{% endif %}		
+			</header>
+			<div class="cards">
+			{% for opportunity in opportunities %}
+				  <div class="card">
+				    <div class="card-image"><a href="{{opportunity.url}}">
+				      <img src="{{opportunity.hero.first().getUrl('small')}}" alt="">
+				    </div>
+				    <div class="card-header">
+				      {{opportunity.shortTitle}}
+				    </div>
+				    <div class="card-copy">
+				      <p>{{opportunity.subtitle | trimit(150)}}</p>
+				    </div>
+				    <div class="card-link">
+				    	<a href="{{opportunity.url}}" class="read-more">Read more &rsaquo;</a>
+				    </div></a>
+				  </div>			
+			{% endfor %}
+			</div>
+		</div>
+	{% endif %}
+{% endblock %}

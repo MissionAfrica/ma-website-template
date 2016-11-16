@@ -1,0 +1,188 @@
+{% extends "_layout" %}
+{% set title = entry.title %}
+{% set description = entry.subtitle %}
+{% set image = entry.hero.first() %}
+{% block content %}
+	<div class="banner small" {% if image %}style="background-image: url('{{ image.getUrl('hero') }}');"{% endif %}>
+		<div class="banner-inner">
+			<div class="banner-copy body-wrapper">
+				<h1>Contact Us</h1>
+				<p>{{ entry.subtitle }}</p>
+			</div>
+		</div>
+	</div>	
+	<div class="body-wrapper">
+		<div id="map_canvas"></div>
+		<div class="contactwrap">
+			<div class="address">
+				<address>
+					{{ contactDetails.officeAddress }}
+					<a href="mailto:{{ contactDetails.infoEmail }}">{{ contactDetails.infoEmail }}</a><br>
+					<a href="tel:{{ contactDetails.officePhone }}">{{ contactDetails.officePhone }}</a>
+				</address>
+			</div>
+			<div class="contact">
+				{% macro errorList(errors) %}
+				    {% if errors %}
+				        <ul class="errors">
+				            {% for error in errors %}
+				                <li>{{ error }}</li>
+				            {% endfor %}
+				        </ul>
+				    {% endif %}
+				{% endmacro %}
+
+				{% from _self import errorList %}
+				<div id="feedback" class="" style="display:none;">
+					Your message was sent successfully!
+				</div>
+				<div id="loading" class="loading" style="display:none">
+					<div></div>
+					<div></div>
+					<div></div>
+				</div>
+				<form id="my-form" method="post" action="" accept-charset="UTF-8">
+					{{ getCsrfInput() }}
+					<input type="hidden" name="action" value="contactForm/sendMessage">
+					<div class="one_half">
+						<label for="fromName">Name</label><input id="fromName" type="text" name="fromName" value="{% if message is defined %}{{ message.fromName }}{% endif %}" required >{{ message is defined and message ? errorList(message.getErrors('fromName')) }}
+						<label for="fromEmail">Email</label><input id="fromEmail" type="text" name="fromEmail" value="{% if message is defined %}{{ message.fromEmail }}{% endif %}" required >{{ message is defined and message ? errorList(message.getErrors('fromEmail')) }}
+						<label for="message[Phone Number]">Phone number</label><input type="tel" name="message[Phone Number]" id="message[Phone Number]" value="{% if message is defined %}{{ message.fromEmail }}{% endif %}" required >{{ message is defined and message ? errorList(message.getErrors('fromEmail')) }}
+					</div>
+					<div class="one_half">
+						<label for="message[body]">Message</label><textarea id="message[body]" name="message[body]" required>{% if message is defined %}{{ message.message }}{% endif %}</textarea >{{ message is defined and message ? errorList(message.getErrors('message')) }}
+						<input type="submit" value="Send" class="c-button c-button--purple">
+					</div>
+				</form>
+			</div>			
+			
+		</div>
+		{% if entry.staffBios|length %}
+			<h1>Get the right person</h1>
+			<div class="cards">
+				{% for staff in entry.staffBios %}
+				    <div class="card tall">
+				      <div class="card-image">
+				      	{% set photo = staff.staffPhoto.first() %}
+				        <img src="{{photo.url('wideThumb')}}" alt="{{staff.staffName}}">
+				      </div>
+				      <div class="card-header">
+				        {{staff.staffName}}<br><small>{{staff.staffJob}}</small>
+				      </div>
+				      <div class="card-copy">
+				        {{staff.staffBio}}
+				      </div>
+				      <div class="card-link">
+				      	<a href="mailto:{{staff.staffEmail}}">{{staff.staffEmail}}</a>
+				      </div>
+				    </div>
+				{% endfor %}
+			</div>
+		{% endif %}
+	</div>
+{% endblock %}
+{% block foot %}
+	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDCNmkif5KxGDv2vCCaA9eVyx307EhAa9g"></script>
+	<script>
+	  var bittersMap = (function () {
+	    var myLatlng = new google.maps.LatLng(54.563876, -5.905389),
+	        mapCenter = new google.maps.LatLng(54.563876, -5.905389),
+	        mapCanvas = document.getElementById('map_canvas'),
+	        mapOptions = {
+	          center: mapCenter,
+	          zoom: 13,
+	          scrollwheel: false,
+	          draggable: true,
+	          disableDefaultUI: true,
+	          mapTypeId: google.maps.MapTypeId.ROADMAP
+	        },
+	        map = new google.maps.Map(mapCanvas, mapOptions),
+	        contentString =
+	          '<div id="content">'+
+	          '<div id="siteNotice">'+
+	          '</div>'+
+	          '<h1 id="firstHeading" class="firstHeading">Mission Africa</h1>'+
+	          '<div id="bodyContent"'+
+	          '<p>14 Glencregagh Court,<br>Belfast,<br>BT6 0PA</p>'+
+	          '</div>'+
+	          '</div>',
+	        infowindow = new google.maps.InfoWindow({
+	          content: contentString,
+	          maxWidth: 300
+	        }),
+	        marker = new google.maps.Marker({
+	          position: myLatlng,
+	          map: map,
+	          title: 'Mission Africa'
+	        });
+
+	    return {
+	      init: function () {
+	        map.set('styles', [{
+	          featureType: 'landscape',
+	          elementType: 'geometry',
+	          stylers: [
+	            { hue: '#ffff00' },
+	            { saturation: 30 },
+	            { lightness: 10}
+	          ]}
+	        ]);
+
+	        google.maps.event.addListener(marker, 'click', function () {
+	          infowindow.open(map,marker);
+	        });
+	      }
+	    };
+	  }());
+
+	  bittersMap.init();
+	</script>
+	<script>
+		$( document ).ajaxStart(function() {
+		  $('#feedback').removeClass('flash-success');
+		  $('#feedback').removeClass('flash-error');
+		  $( "#loading" ).fadeIn();
+		  $( "#my-form" ).slideUp();
+		});
+		$('#my-form').submit(function(ev) {
+		    // Prevent the form from actually submitting
+		    ev.preventDefault();
+
+		    // Get the post data
+		    var data = $(this).serialize();
+
+		    // Send it to the server
+		    $.post('/', data, function(response) {
+		        if (response.success) {
+		        	 $( "#loading" ).fadeOut();
+		        	 $('#feedback').addClass('flash-success');
+      	             $('#feedback').slideDown();
+		        } else {
+		            // response.error will be an object containing any validation errors that occurred, indexed by field name
+		            // e.g. response.error.fromName => ['From Name is required']
+		            // Loop through the errors and append to relevant fields
+                    for ( var fieldId in response.error ) {
+
+                        // Create the <ul>
+                        var $errors = $( '<ul class="errors plain" />' );
+
+                        // Wrap the error messages in <li> tags
+                        var messages = $.map(response.error[fieldId], function(message){
+                            return '<li>' + message + '</li>';
+                        });
+
+                        // Append the error messages to the ul
+                        $errors.append( messages.join( '' ) );
+
+                        // Select the input element and append the .errors <ul> after it.
+                        $('#'+fieldId).after($errors);
+                        $('#'+fieldId).addClass('error')
+
+                    }
+		            $( "#loading" ).slideUp();
+		  			$( "#my-form" ).slideDown();
+		        }
+		    });
+		});
+	</script>
+{% endblock %}	

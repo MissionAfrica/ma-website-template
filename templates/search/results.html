@@ -1,0 +1,100 @@
+{% extends "_layout" %}
+{% set query = craft.request.getParam('q') %}
+{% set image = entry.hero.first('hero') %}
+{% set title = query %}
+{% block content %}
+	
+	<div class="banner small" {% if image %}style="background-image:url('{{ image.getUrl('hero') }}');"{% endif %}>
+		<div class="banner-inner">
+			<div class="banner-copy body-wrapper">
+				<h1><h1>Search Results</h1></h1>
+				<p>Searching for "{{query}}"</p>
+			</div>
+		</div>
+	</div>
+	<article>
+	{% set missionaries = craft.entries.search(query).section('missionaries').order('score') %}
+	{% set ministries = craft.entries.search(query).section('ministries').order('score') %}
+	{% set opportunities = craft.entries.search(query).section('opportunities').order('score') %}
+	{% set newsEntries = craft.entries.search(query).section('newsAndEvents').order('score') %}
+	<div class="search-results">
+		{% if missionaries|length or ministries|length or opportunities|length or newsEntries|length %}
+			{% if missionaries|length %}
+				<div class="section">
+					<h3>Missionaries</h3>
+				    <ul>
+				        {% for missionary in missionaries %}
+				            <li>
+				            	<h4>
+				            		<a href="{{ missionary.url }}">{{ missionary.title }}</a>
+				            	</h4>
+				            	{% if missionary.subtitle|length %}
+					            	<div class="summary">
+					            		<p>{{missionary.subtitle}}</p>
+					            	</div>
+				            	{% endif %}
+				            </li>
+				        {% endfor %}
+				</div>
+			{% endif %}
+			{% if ministries|length %}
+				<div class="section">
+					<h3>Ministries</h3>
+				    <ul>
+				        {% for ministry in ministries %}
+				            <li>
+				            	<h4>
+				            		<a href="{{ ministry.url }}">{{ ministry.shortTitle }}</a>
+				            	</h4>
+				            	{% if ministry.subtitle|length %}
+					            	<div class="summary">
+					            		<p>{{ministry.subtitle}}</p>
+					            	</div>
+				            	{% endif %}
+				            </li>
+				        {% endfor %}
+				</div>
+			{% endif %}
+			{% if opportunities|length %}
+				<div class="section">
+					<h3>Opportunities</h3>
+				    <ul>
+				        {% for opportunity in opportunities %}
+				            <li>
+				            	<h4>
+				            		<a href="{{ opportunity.url }}">{{ opportunity.shortTitle }}</a>
+				            	</h4>
+				            	{% if opportunity.subtitle|length %}
+					            	<div class="summary">
+					            		<p>{{opportunity.subtitle}}</p>
+					            	</div>
+				            	{% endif %}
+				            </li>
+				        {% endfor %}
+				</div>
+			{% endif %}
+			{% if newsEntries|length %}	
+		    <div class="section">
+				<h3>News and Events</h3>
+			    <ul>
+			        {% for newsEntry in newsEntries %}
+			            <li>
+			            	<h4>
+			            		<a href="{{ newsEntry.url }}">{{ newsEntry.title }}</a>
+			            	</h4>
+			            	{% if newsEntry.subtitle|length %}
+				            	<div class="summary">
+				            		<p>{{newsEntry.subtitle}}</p>
+				            	</div>
+			            	{% endif %}
+			            </li>
+			        {% endfor %}
+			</div>
+		    {% endif %}	
+		{% else %}
+		    <p>Your search for “{{ query }}” didn’t return any results.</p>
+		{% endif %}
+
+	</div>
+	</article>
+{% endblock %}

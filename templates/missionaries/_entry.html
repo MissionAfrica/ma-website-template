@@ -1,0 +1,93 @@
+{% extends "_layout" %}
+{% set title = entry.title %}
+{% set description = entry.subtitle %}
+{% set image = entry.hero.first() %}
+{% block content %}
+	
+	{% if image %}
+		<div class="body-wrapper only-sides">
+			<div class="article-image main-image">
+			    <figure>
+				    <div class="image crop-16x9">
+				        <div>
+				        	<img src="{{ image.getUrl('large') }}">
+				        </div>
+				    </div>
+				</figure>
+			</div>
+		</div>
+		{% endif %}
+	<article>
+		<h1>{{ entry.title }}</h1>
+		<h2>{{ entry.subtitle }}</h2>
+		{{ entry.body }}
+		<p class="center"><a class="button" href="{{siteUrl}}give?to={{entry.id}}">Support {{entry}}</a></p>
+		<div class="addthis_sharing_toolbox"></div>
+	</article>
+
+	{% if entry.prayerLetter|length  %}
+		<div class="body-wrapper">
+			{% for letter in entry.prayerLetter %}
+				<div class="pdf">
+				  <div class="pdf-image">
+				    <img src="{{siteUrl}}assets/images/pdf-icon.png">
+				  </div>
+				  <div class="pdf-content">
+				    <h1>Prayer letter - <small>{{ letter.dateOfLetter }}</small></h1>
+				    {% set pdf = letter.pdfFile.first() %}
+				    <p>{{ letter.blurb|trimit(150) }} <a href="{{ pdf.url }}" class="read-more" target="_blank">Read More &rsaquo;</a> </p>
+				     
+				  </div>
+				</div>
+			{% endfor %}		
+		</div>	
+	{% endif %}
+	{% set missionaries = craft.entries.section('missionaries').relatedTo(entry).find() %}
+	{% if missionaries %}
+		<div class="body-wrapper">
+			<h2>Related missionaries</h2>				
+			<div class="cards">
+			{% for missionary in missionaries %}
+				  <div class="card"><a href="{{missionary.url}}">
+				    <div class="card-image">
+				      <img src="{{missionary.hero.first().getUrl('small')}}" alt="">
+				    </div>
+				    <div class="card-header">
+				      {{missionary.title}}
+				    </div>
+				    <div class="card-copy">
+				      <p>{{missionary.subtitle | trimit(150)}}</p>
+				      
+				    </div>
+				    <div class="card-link"><a href="{{missionary.url}}" class="read-more">Read more &rsaquo;</a></div></a>
+				  </div>
+				
+			{% endfor %}
+			</div>
+		</div>
+	{% endif %}
+	{% set ministries = craft.entries.section('ministries').relatedTo(entry).find() %}
+	{% if ministries %}
+		<div class="body-wrapper">
+			<h2>Related ministries</h2>
+			<div class="cards">
+			{% for ministry in ministries %}
+				  <div class="card"><a href="{{ministry.url}}">
+				    <div class="card-image">
+				      <img src="{{ministry.hero.first().getUrl('small')}}" alt="">
+				    </div>
+				    <div class="card-header">
+				      {{ministry.shortTitle}}
+				    </div>
+				    <div class="card-copy">
+				      <p>{{ministry.subtitle | trimit(150)}}</p>
+				      
+				    </div>
+				    <div class="card-link"><a href="{{ministry.url}}" class="read-more">Read more &rsaquo;</a></div></a>
+				  </div>
+				
+			{% endfor %}
+			</div>
+		</div>
+	{% endif %}
+{% endblock %}

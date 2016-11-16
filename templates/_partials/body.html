@@ -1,0 +1,131 @@
+{#
+ # Article Body include template
+ # -----------------------------
+ #
+ # This template is used to output HTML for an "Article Body" Matrix field.
+ #
+ # An `entry` variable is expected to be defined.
+-#}
+
+{% macro getPosition(block) %}
+	{%- spaceless %}
+		{% set positionedTypes = ['text', 'pullQuote', 'image', 'quote'] %}
+		{{ block.type.handle in positionedTypes and block.position ? block.position : 'center' }}
+	{% endspaceless -%}
+{% endmacro %}
+
+{% from _self import getPosition %}
+
+{% set prevType = null %}
+{% set prevPosition = null %}
+{% set nextType = null %}
+{% set nextPosition = null %}
+{% set closedLastRow = true %}
+<div class="longform">
+{% for block in entry.longformArticleBody %}
+
+
+	{% set type = (nextType ?: block.type.handle) %}
+	{% set position = (nextPosition ?: getPosition(block)~'') %}
+
+	{% set nextType = (not loop.last ? block.next().type.handle) %}
+	{% set nextPosition = (not loop.last ? getPosition(block.next())~'') %}
+
+	{# Is this block floated to the left or right? #}
+	{% set isFloat = position in ['left', 'right'] %}
+
+	{# Is this a breakout block (a sole floated block before a centered block)? #}
+	{% set isBreakout = (
+		isFloat and
+		type in ['pullQuote', 'image'] and
+		(position == 'left' or prevPosition != 'left') and
+		nextPosition == 'center'
+	) %}
+
+	{# Are we starting a new row? #}
+	{% if position == 'full' %}
+		<div class="full">
+	{% elseif closedLastRow %}
+		<div class="
+		{%- if (type == 'image' and position == 'center') %} center-image
+		{%- elseif (type in ['image', 'pullQuote'] and position == 'right') %} push-right
+		{%- elseif (type in ['image', 'pullQuote'] and position == 'left') %} push-left
+		{%- else %} center-text{% endif -%}">
+	{% endif %}
+
+	{% if isFloat %}
+		<div class="
+		{%- if isBreakout %} breakout{% endif %}">
+	{% endif %}
+
+	{% switch type %}
+		{% case 'newSection' %}
+			<hr class="horz-rule">
+			<h1 class="center">{{ block.sectionHeading }}</h1>
+
+		{% case 'heading' %}
+			<h1 class="center">{{ block.heading }}</h1>
+
+		{% case 'text' %}
+			{{ block.text }}
+
+		{% case 'pullQuote' %}
+			<div class="pullquote">
+				<p>{{ block.pullQuote }}</p>
+			</div>
+
+		{% case 'image' %}
+			{% set image = block.image.first() %}
+			{% if image %}
+				{% if position == 'full' %}
+					{% do image.setTransform({ width: 1440, height: 480 }) %}
+				{% elseif position == 'center' %}
+					{% do image.setTransform({ width: 600 }) %}
+				{% elseif isBreakout %}
+					{% do image.setTransform({ width: 460 }) %}
+				{% else %}
+					{% do image.setTransform({ width: 360 }) %}
+				{% endif %}
+
+				<p><img{% if position == 'full' %} class="contain-media"{% endif %} src="{{ image.url }}" alt="{{ image.title }}"></p>
+			{% endif %}
+
+
+		{% case 'quote' %}
+
+			{# Are we giving it a custom BG color? #}
+			{# {% set bgColor = position == 'full' and entry.backgroundColor != '#000000' ? entry.backgroundColor %} #}
+			<blockquote class="blockquote">
+					{{ block.quote }}
+
+					{% if block.attribution %}
+						<footer><cite>{{ block.attribution }}</cite></footer>
+					{% endif %}
+			</blockquote>
+	{% endswitch %}
+
+	{% if isFloat %}
+		</div>
+	{% endif %}
+
+	{# Are we closing this row? #}
+	{% if not (
+		(position == 'left' and nextPosition == 'right') or
+		isBreakout
+	) %}
+		</div>
+		{% set closedLastRow = true %}
+	{% else %}
+		{% set closedLastRow = false %}
+	{% endif %}
+
+	{% if type == 'heading' and not loop.first and prevType == 'newSection' %}
+			<div class="">
+				<hr class="horz-rule">
+			</div>
+	{% endif %}
+
+	{% set prevType = type %}
+	{% set prevPosition = position %}
+{% endfor %}
+</div>
